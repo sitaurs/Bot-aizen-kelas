@@ -1,0 +1,170 @@
+{
+  "senin": [
+    {
+      "course": "Sistem Komunikasi Fiber Optik",
+      "start": "09:30",
+      "end": "12:00",
+      "room": "AH.1.10",
+      "lecturer": {
+        "code": 18,
+        "name": "Drs. Yoyok Heru P. I., M.T.",
+        "wa": "628123314531",
+        "waJid": "628123314531@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Praktikum Saluran Transmisi & Gelombang Mikro",
+      "start": "12:30",
+      "end": "16:20",
+      "room": "LAB.AI.2",
+      "lecturer": {
+        "code": 26,
+        "name": "M. Syirajuddin, S.T., M.T.",
+        "wa": "6282123218252",
+        "waJid": "6282123218252@s.whatsapp.net"
+      }
+    }
+  ],
+  "selasa": [
+    {
+      "course": "Workshop Mikrokontroler",
+      "start": "07:00",
+      "end": "08:40",
+      "room": "AH.3.37",
+      "lecturer": {
+        "code": 34,
+        "name": "Dodit Suprianto, S.Kom., M.T.",
+        "wa": "6285731311476",
+        "waJid": "6285731311476@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Pendidikan Agama",
+      "start": "08:40",
+      "end": "10:20",
+      "room": "AH.1.5",
+      "lecturer": {
+        "code": 20,
+        "name": "Abdul Chalim, S.Ag., M.Pd.",
+        "wa": "6281357633770",
+        "waJid": "6281357633770@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Workshop Rekayasa Trafik",
+      "start": "10:20",
+      "end": "12:00",
+      "room": "AH.3.34",
+      "lecturer": {
+        "code": 27,
+        "name": "Nurul Hidayati, S.T., M.T.",
+        "wa": "6285645371071",
+        "waJid": "6285645371071@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Sistem Komunikasi Seluler",
+      "start": "12:30",
+      "end": "15:00",
+      "room": "AH.3.34",
+      "lecturer": {
+        "code": 31,
+        "name": "Atik Novianti, S.ST., M.T.",
+        "wa": "6281223404701",
+        "waJid": "6281223404701@s.whatsapp.net"
+      }
+    }
+  ],
+  "rabu": [
+    {
+      "course": "Workshop Mikrokontroler",
+      "start": "07:00",
+      "end": "10:20",
+      "room": "AH.3.37",
+      "lecturer": {
+        "code": 34,
+        "name": "Dodit Suprianto, S.Kom., M.T.",
+        "wa": "6285731311476",
+        "waJid": "6285731311476@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Workshop Rekayasa Trafik",
+      "start": "10:20",
+      "end": "13:20",
+      "room": "AH.3.36",
+      "lecturer": {
+        "code": 27,
+        "name": "Nurul Hidayati, S.T., M.T.",
+        "wa": "6285645371071",
+        "waJid": "6285645371071@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Praktikum Teknik & Jaringan Komputer",
+      "start": "13:20",
+      "end": "15:00",
+      "room": "LAB.KOM.AL.2",
+      "lecturer": {
+        "code": 29,
+        "name": "Galih Putra Riatma, S.T., M.T.",
+        "wa": "628113777835",
+        "waJid": "628113777835@s.whatsapp.net"
+      }
+    }
+  ],
+  "kamis": [
+    {
+      "course": "Praktikum Sistem Modulasi & Multiplexing",
+      "start": "07:00",
+      "end": "10:20",
+      "room": "LAB.AI.3",
+      "lecturer": {
+        "code": 17,
+        "name": "Rachmad Saptono, S.T., M.T.",
+        "wa": "6282233931349",
+        "waJid": "6282233931349@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Antena",
+      "start": "11:10",
+      "end": "14:10",
+      "room": "AH.1.10",
+      "lecturer": {
+        "code": 43,
+        "name": "Herma Nugroho, S.T., M.T.",
+        "wa": "6281334312266",
+        "waJid": "6281334312266@s.whatsapp.net"
+      }
+    }
+  ],
+  "jumat": [
+    {
+      "course": "Praktikum Sistem Komunikasi Radio",
+      "start": "07:50",
+      "end": "11:10",
+      "room": "LAB.AI.2",
+      "lecturer": {
+        "code": 7,
+        "name": "Ir. Hudiono, M.T.",
+        "wa": "62818599111",
+        "waJid": "62818599111@s.whatsapp.net"
+      }
+    },
+    {
+      "course": "Praktikum Teknik & Jaringan Komputer",
+      "start": "13:20",
+      "end": "16:10",
+      "room": "LAB.KOM.AL.2",
+      "lecturer": {
+        "code": 29,
+        "name": "Galih Putra Riatma, S.T., M.T.",
+        "wa": "628113777835",
+        "waJid": "628113777835@s.whatsapp.net"
+      }
+    }
+  ],
+  "sabtu": [],
+  "minggu": []
+}

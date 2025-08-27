@@ -1,0 +1,20 @@
+[
+  {
+    "id": "cash_74605675",
+    "amount": 50000,
+    "dueISO": "2025-08-24T17:00:00",
+    "paid": false
+  },
+  {
+    "id": "cash_d0a9d9c9",
+    "amount": 50000,
+    "dueISO": "2025-08-24T17:00:00",
+    "paid": false
+  },
+  {
+    "id": "cash_cc2b0829",
+    "amount": 50000,
+    "dueISO": "2024-08-24T17:00:00",
+    "paid": false
+  }
+]
