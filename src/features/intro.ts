@@ -46,10 +46,10 @@ Panggil aku bebas: zen / aizen / zennn / zeen (boleh di awal, tengah, atau akhir
 
 ━━━━━━━━━━━━━━━━━━
 👥 Peran & hak akses (aktif saat ini)
-• *Ketua kelas:* ${formatList(roles.ketua_kelas)}
-• *Bendahara:* ${formatList(roles.bendahara)}
-• *Sekretaris:* ${formatList(roles.sekretaris)}
-• *Developer (superuser):* ${formatList(roles.developer)}
+• *Ketua kelas:* ${formatList(roles.ketua_kelas || [])}
+• *Bendahara:* ${formatList(roles.bendahara || [])}
+• *Sekretaris:* ${formatList(roles.sekretaris || [])}
+• *Developer (superuser):* ${formatList(roles.developer || [])}
 
 • *Fun role default:* *anak baik*. Core role (ketua/bendahara/sekretaris/developer) bisa ubah ke *anak nakal* untuk seru-seruan.
   - Jika *anak nakal*, kadang akan dapat “Catatan Aizen” (rate-limit, max 1×/jam).

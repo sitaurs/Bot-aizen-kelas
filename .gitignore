@@ -21,7 +21,10 @@ auth/
 
 # Data files - now included in repository
 # data/ folder is now tracked
-storage/
+/storage/
+
+# Source code storage is included
+# src/storage/ is tracked
 
 # Logs
 logs/
