@@ -1,0 +1,13 @@
+{
+  "tagAll": {
+    "intro": true,
+    "dailySchedule06": true,
+    "tMinus15": true,
+    "carryItemsNight": true,
+    "carryItemsMorning": true,
+    "hydration": true,
+    "universalRemindersDefault": true,
+    "chunkSize": 80,
+    "cooldownSeconds": 120
+  }
+}

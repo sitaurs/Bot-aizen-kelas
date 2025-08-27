@@ -1,0 +1,129 @@
+{
+  "timezone": "Asia/Jakarta",
+  "days": {
+    "senin": [
+      {
+        "course": "Sistem Komunikasi Fiber Optik",
+        "start": "09:30",
+        "end": "12:00",
+        "lecturerCode": 18,
+        "room": "AH.1.10"
+      },
+      {
+        "course": "Praktikum Saluran Transmisi & Gelombang Mikro",
+        "start": "12:30",
+        "end": "16:20",
+        "lecturerCode": 26,
+        "room": "LAB.AI.2"
+      }
+    ],
+    "selasa": [
+      {
+        "course": "Workshop Mikrokontroler",
+        "start": "07:00",
+        "end": "08:40",
+        "lecturerCode": 34,
+        "room": "AH.3.37"
+      },
+      {
+        "course": "Pendidikan Agama",
+        "start": "08:40",
+        "end": "10:20",
+        "lecturerCode": 20,
+        "room": "AH.1.5"
+      },
+      {
+        "course": "Workshop Rekayasa Trafik",
+        "start": "10:20",
+        "end": "12:00",
+        "lecturerCode": 27,
+        "room": "AH.3.34"
+      },
+      {
+        "course": "Sistem Komunikasi Seluler",
+        "start": "12:30",
+        "end": "15:00",
+        "lecturerCode": 31,
+        "room": "AH.3.34"
+      }
+    ],
+    "rabu": [
+      {
+        "course": "Workshop Mikrokontroler",
+        "start": "07:00",
+        "end": "10:20",
+        "lecturerCode": 34,
+        "room": "AH.3.37"
+      },
+      {
+        "course": "Workshop Rekayasa Trafik",
+        "start": "10:20",
+        "end": "13:20",
+        "lecturerCode": 27,
+        "room": "AH.3.36"
+      },
+      {
+        "course": "Praktikum Teknik & Jaringan Komputer",
+        "start": "13:20",
+        "end": "15:00",
+        "lecturerCode": 29,
+        "room": "LAB.KOM.AL.2",
+        "fixed": true,
+        "anomaly": {
+          "raw": {
+            "start": "13:20",
+            "end": "15:90"
+          }
+        }
+      }
+    ],
+    "kamis": [
+      {
+        "course": "Praktikum Sistem Modulasi & Multiplexing",
+        "start": "07:00",
+        "end": "10:20",
+        "lecturerCode": 17,
+        "room": "LAB.AI.3"
+      },
+      {
+        "course": "Antena",
+        "start": "11:10",
+        "end": "14:10",
+        "lecturerCode": 43,
+        "room": "AH.1.10"
+      }
+    ],
+    "jumat": [
+      {
+        "course": "Praktikum Sistem Komunikasi Radio",
+        "start": "07:50",
+        "end": "11:10",
+        "lecturerCode": 7,
+        "room": "LAB.AI.2"
+      },
+      {
+        "course": "Praktikum Teknik & Jaringan Komputer",
+        "start": "13:20",
+        "end": "16:10",
+        "lecturerCode": 29,
+        "room": "LAB.KOM.AL.2"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "date": "2025-08-25",
+      "course": "EM",
+      "start": "17:00",
+      "end": "19:00",
+      "room": "B201",
+      "reason": "bentrok"
+    },
+    {
+      "date": "2025-09-03",
+      "course": "Praktikum Jaringan Komputer dan Jaringan",
+      "start": "13:20",
+      "end": "15:00"
+    }
+  ]
+}

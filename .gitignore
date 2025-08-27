@@ -21,6 +21,11 @@ auth/
 
 # Data files (contains sensitive information)
 data/
+!data/config.json
+!data/course_aliases.json
+!data/lecturers.json
+!data/schedule.json
+!data/materials/
 storage/
 
 # Logs
