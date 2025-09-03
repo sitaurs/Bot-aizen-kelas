@@ -1,5 +1,6 @@
 import { WASocket } from '@whiskeysockets/baileys';
 import { sendTextMessage } from '../wa/handlers.js';
+import { sendSystemTagAll } from './tagAllSystem.js';
 import { getData } from '../storage/files.js';
 import { logger } from '../utils/logger.js';
 
@@ -17,7 +18,7 @@ export function getAllBroadcastGroups(): string[] {
 }
 
 /**
- * Broadcast a text message to all configured groups
+ * Broadcast a text message to all configured groups with tag all
  */
 export async function broadcastToAllGroups(sock: WASocket, message: string): Promise<void> {
   const groups = getAllBroadcastGroups();
@@ -27,7 +28,7 @@ export async function broadcastToAllGroups(sock: WASocket, message: string): Pro
     return;
   }
   
-  logger.info(`[BROADCAST] Sending message to ${groups.length} groups: ${message.slice(0, 50)}...`);
+  logger.info(`[BROADCAST] Sending message to ${groups.length} groups with tag all: ${message.slice(0, 50)}...`);
   
   // Send messages sequentially with delay to prevent stream errors
   for (let i = 0; i < groups.length; i++) {
@@ -35,19 +36,23 @@ export async function broadcastToAllGroups(sock: WASocket, message: string): Pro
     if (!groupJid) continue; // Type guard
     
     try {
-      await sendTextMessage(sock, groupJid, message);
-      logger.info(`[BROADCAST] ✅ Sent to ${groupJid} (${i + 1}/${groups.length})`);
+      // Use sendSystemTagAll to mention everyone in the group
+      await sendSystemTagAll(() => sock, groupJid, message, { 
+        chunkSize: 80, 
+        cooldownSec: 0 // No cooldown for broadcasts
+      });
+      logger.info(`[BROADCAST] ✅ Sent with tag all to ${groupJid} (${i + 1}/${groups.length})`);
       
       // Add delay between messages to prevent overloading the connection
       if (i < groups.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5 second delay
+        await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay for tag all
       }
     } catch (error) {
       logger.error({ err: error, groupJid }, `[BROADCAST] ❌ Failed to send to ${groupJid}`);
     }
   }
   
-  logger.info(`[BROADCAST] Completed broadcasting to ${groups.length} groups`);
+  logger.info(`[BROADCAST] Completed broadcasting with tag all to ${groups.length} groups`);
 }
 
 /**
