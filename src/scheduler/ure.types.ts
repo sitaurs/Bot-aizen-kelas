@@ -30,6 +30,7 @@ export interface Reminder {
     course?: string;
   };
   useTagAll?: boolean;
+  broadcastToAllGroups?: boolean; // NEW: untuk broadcast ke semua grup
 }
 
 

@@ -19,8 +19,10 @@ build/
 auth/
 *.session
 
-# Data files - now included in repository
-# data/ folder is now tracked
+# Data files - exclude from repository
+data/
+
+# Storage files
 /storage/
 
 # Source code storage is included

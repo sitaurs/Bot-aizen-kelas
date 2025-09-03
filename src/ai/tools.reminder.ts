@@ -23,6 +23,7 @@ export const reminderToolDecls = [
         text: { type: 'string' },
         audience: { type: 'string', enum: ['group','dm'] },
         useTagAll: { type: 'boolean' },
+        broadcastToAllGroups: { type: 'boolean' },
         atISO: { type: 'string' },
         rrule: { type: 'string' },
         startISO: { type: 'string' },
@@ -182,6 +183,7 @@ async function createReminder(payload: any & { _requesterJid?: string; _chatJid?
   if (payload.dueAtISO) r.meta = { ...(r.meta || {}), dueAtISO: payload.dueAtISO };
   if (Array.isArray(payload.tags)) r.meta = { ...(r.meta || {}), tags: payload.tags };
   if (typeof payload.useTagAll === 'boolean') (r as any).useTagAll = payload.useTagAll;
+  if (typeof payload.broadcastToAllGroups === 'boolean') (r as any).broadcastToAllGroups = payload.broadcastToAllGroups;
 
   list.push(r);
   await updateReminders(async () => ({ reminders: list }));

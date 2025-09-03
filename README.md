@@ -27,7 +27,10 @@ Aizen adalah bot WhatsApp untuk manajemen kelas berbasis Node.js (TypeScript + E
 ## ⭐ Highlight Kemampuan
 - 🤖 AI Function-Calling (Gemini): tools mode AUTO, hasil natural, parameter tervalidasi.
 - 🧠 Clarify Loop (tanya balik): model-led (`askClarify`) & app-led (slot filling per intent) — kini multi-turn dengan pending intent/args/expect + expiry 30 menit.
-- 🗓️ Jadwal & Lokasi Kelas: dukung tanggal relatif ("hari ini", "besok", "Senin") — PENTING: ringkasan harian & T-15 sudah merge overrides + enrich dosen/WA/ruang secara on-the-fly.
+- � **Multi-Group Setup**: Semua grup di `GROUP_IDS` diperlakukan sama rata (fitur dan reminder universal).
+- 📢 **Broadcast Command**: `cht <pesan>` mengirim broadcast ke semua grup tanpa AI.
+- 🔔 **Universal Reminders**: Reminder bisa broadcast ke semua grup dengan `broadcastToAllGroups=true`.
+- �🗓️ Jadwal & Lokasi Kelas: dukung tanggal relatif ("hari ini", "besok", "Senin") — PENTING: ringkasan harian & T-15 sudah merge overrides + enrich dosen/WA/ruang secara on-the-fly.
 - ⏰ Pengingat: tugas, ujian (UTS/UAS/Quiz), kas (role-gated), barang bawaan (set/hapus, hapus “terakhir”).
 - 📦 Materi Kuliah: simpan media + caption per tanggal & matkul; cari kembali dengan query.
 - 👥 Tag All (@ll) BYPASS Gemini: trigger `@ll <pesan>` langsung mention semua anggota (contextInfo) dengan rate-limit & chunking; dibatasi fun role + core roles.
@@ -39,6 +42,22 @@ Aizen adalah bot WhatsApp untuk manajemen kelas berbasis Node.js (TypeScript + E
 ---
 
 ## 🔔 Fitur Baru (v terbaru)
+- **Multi-Group Setup Universal**
+  - Konfigurasi `GROUP_IDS` di file `.env` untuk beberapa grup sekaligus (dipisah koma).
+  - HANYA setting di `.env`, TIDAK di `whitelist.json` atau tempat lain.
+  - Semua grup mendapat fitur yang sama rata: jadwal, reminder, materi, dll.
+  - Backward compatible dengan `GROUP_JID` lama.
+
+- **Broadcast Command Tanpa AI** 
+  - Ketik `cht <pesan>` di grup manapun ⇒ pesan dikirim ke SEMUA grup.
+  - Tanpa melibatkan Gemini, langsung broadcast.
+  - Contoh: `cht Besok libur ya guys!` ⇒ dikirim ke semua grup.
+
+- **Universal Reminders dengan Broadcast**
+  - Reminder sekarang bisa di-set untuk broadcast ke semua grup.
+  - Gunakan parameter `broadcastToAllGroups=true` saat membuat reminder.
+  - Reminder dibuat dari grup mana pun, tapi dikirim ke semua grup.
+
 - @ll Tag-All Tanpa Gemini
   - Ketik `@ll <pesan>` di grup ⇒ bot mengirim `<pesan>` bersih dengan `contextInfo.mentionedJid` untuk semua anggota grup (tanpa @nama di teks).
   - Gate: funRole `anak_nakal` ditolak kecuali punya core role (`ketua_kelas|bendahara|sekretaris|developer`).
@@ -90,7 +109,7 @@ GEMINI_API_KEY_1=...
 GEMINI_API_KEY_2=...
 ...
 TZ=Asia/Jakarta
-GROUP_JID=1203...@g.us
+GROUP_IDS=1203...@g.us,1204...@g.us,1205...@g.us
 BOT_NAME=Aizen
 BOT_TRIGGERS=zen,aizen,zennn,zeen,zzzznnn
 ```

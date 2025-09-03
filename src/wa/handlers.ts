@@ -6,9 +6,10 @@ import { fuzzyTrigger } from '../features/fuzzy-trigger.js';
 import { handleTagAll } from '../features/tagAll.js';
 import { buildIntroMessage } from '../features/intro.js';
 import { sendSystemTagAll } from '../features/tagAllSystem.js';
-import { getData } from '../storage/files.js';
+import { getData, saveData } from '../storage/files.js';
 import { GeminiAI } from '../ai/gemini.js'; // GEMINI-FIRST: Direct import
 import { saveIncomingMedia } from '../features/materials.js';
+import { isBroadcastCommand, extractBroadcastMessage, broadcastToAllGroups } from '../features/broadcast.js';
 import { WhatsAppMessage } from '../types/index.js';
 import { isAllowedChat, getPersonByJid, getFunRoleByJid } from '../utils/access.js';
 import { maybeAppendQuote } from '../utils/quotes.js';
@@ -16,6 +17,97 @@ import { reactStage, withPresence } from '../ux/progress.js';
 import { sendTextSmart } from '../ux/format.js';
 import { normalizeJid, isGroupJid } from '../utils/jid.js';
 import { validateMentionAllAccess } from '../utils/gating.js';
+import { getToday, getDayName } from '../utils/time.js';
+
+/**
+ * Handle material submission from Note Takers
+ * Format: <ID> <link> <caption>
+ */
+async function handleNoteTakersSubmission(sock: WASocket, msg: WhatsAppMessage, text: string | null, senderJid: string): Promise<boolean> {
+  try {
+    // Check if sender is a note taker and this is a DM
+    const noteTakers = process.env.NOTE_TAKERS?.split(',') || [];
+    if (!text || !senderJid.endsWith('@s.whatsapp.net') || !noteTakers.includes(senderJid)) {
+      return false;
+    }
+    
+    // Parse input with format: <id> <link> <caption>
+    const match = text.match(/^(\d+)\s+(https?:\/\/\S+)\s+(.+)$/s);
+    if (!match) {
+      return false;
+    }
+    
+    const [, idStr, link, caption] = match;
+    if (!idStr || !link || !caption) {
+      return false;
+    }
+    
+    const id = parseInt(idStr, 10);
+    
+    if (id < 1) {
+      await sendTextSmart(sock, senderJid, '❌ ID mata kuliah harus angka 1 atau lebih besar.');
+      return true;
+    }
+    
+    // Get today's courses for validation (optional, allow any ID)
+    const today = getToday();
+    const dn = getDayName(today);
+    const map: any = { mon: 'senin', tue: 'selasa', wed: 'rabu', thu: 'kamis', fri: 'jumat', sat: 'sabtu', sun: 'minggu' };
+    const dayName = (dn ? map[String(dn).toLowerCase()] : 'senin');
+    const schedule = getData('schedule');
+    const dayClasses = ((schedule.days || {}) as any)[dayName] || [];
+    
+    let courseName = `Mata Kuliah ID-${id}`;
+    if (id <= dayClasses.length) {
+      courseName = dayClasses[id - 1].course;
+    }
+    
+    // Save material to JSON
+    const materials = getData('materials') || { byDate: {}, byCourse: {} };
+    const dateKey = today;
+    
+    if (!materials.byDate[dateKey]) {
+      materials.byDate[dateKey] = [];
+    }
+    
+    if (!materials.byCourse[courseName]) {
+      materials.byCourse[courseName] = [];
+    }
+    
+    const newMaterial = {
+      id: `mat_${Date.now()}`,
+      date: today,
+      course: courseName,
+      link: link,
+      caption: caption,
+      type: 'link',
+      addedBy: senderJid,
+      timestamp: new Date().toISOString()
+    };
+    
+    materials.byDate[dateKey].push(newMaterial);
+    materials.byCourse[courseName].push(newMaterial);
+    
+    await saveData('materials', materials);
+    
+    // Send confirmation
+    await sendTextSmart(sock, senderJid, 
+      `✅ *MATERI TERSIMPAN!*\n\n` +
+      `📚 **Mata Kuliah:** ${courseName}\n` +
+      `🔗 **Link:** ${link}\n` +
+      `📝 **Caption:** ${caption}\n\n` +
+      `Material ini sekarang bisa dicari dengan kata kunci dari caption. Terima kasih! 🙏`
+    );
+    
+    logger.info({ senderJid, course: courseName, id }, 'Note taker material saved');
+    return true;
+    
+  } catch (error) {
+    logger.error({ err: error as any, senderJid }, 'Error handling note taker submission');
+    await sendTextSmart(sock, senderJid, '❌ Terjadi kesalahan saat menyimpan materi. Silakan coba lagi.');
+    return true;
+  }
+}
 
 interface MessageUpsertParams {
   sock: WASocket;
@@ -73,6 +165,35 @@ export async function onMessageUpsert({ sock, upsert }: MessageUpsertParams): Pr
 
   const person = getPersonByJid(jid);
   logger.info(`[HANDLER] Text message from ${jid}${person ? ` (${person.name})` : ''}: ${text}`);
+
+  // Early bypass: Note Takers material submission
+  const noteTakersHandled = await handleNoteTakersSubmission(sock, msg as any, text, jid);
+  if (noteTakersHandled) {
+    logger.info(`[HANDLER] Message handled by note takers system`);
+    return;
+  }
+
+  // Early bypass: Broadcast command (cht <message>)
+  if (isBroadcastCommand(text)) {
+    logger.info(`[HANDLER] Processing broadcast command from ${jid}`);
+    try {
+      const broadcastMessage = extractBroadcastMessage(text);
+      if (!broadcastMessage.trim()) {
+        await sendTextSmart(sock, jid, '❌ Pesan broadcast tidak boleh kosong!\n\nFormat: `cht <pesan>`');
+        return;
+      }
+      
+      await reactStage(sock, jid, msg.key as any, 'sending');
+      await broadcastToAllGroups(sock, broadcastMessage);
+      await sendTextSmart(sock, jid, `✅ Pesan berhasil di-broadcast ke semua grup!\n\n📢 **Pesan:** ${broadcastMessage}`);
+      await reactStage(sock, jid, msg.key as any, 'done');
+      logger.info(`[HANDLER] Broadcast completed successfully from ${jid}`);
+    } catch (error) {
+      logger.error({ err: error, jid }, '[HANDLER] Failed to process broadcast command');
+      await sendTextSmart(sock, jid, '❌ Gagal mengirim broadcast. Silakan coba lagi.');
+    }
+    return;
+  }
 
   // Early bypass: @ll trigger without Gemini
   const tagAllHandled = await handleTagAll(sock, msg as any, String(text || '').trim(), { 

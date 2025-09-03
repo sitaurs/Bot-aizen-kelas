@@ -5,6 +5,7 @@ import timezone from 'dayjs/plugin/timezone.js';
 import { Reminder } from './ure.types.js';
 import { getData } from '../storage/files.js';
 import { sendSystemTagAll } from '../features/tagAllSystem.js';
+import { broadcastToAllGroups } from '../features/broadcast.js';
 import { loadReminders, updateReminders } from './ure.store.js';
 import { logger } from '../utils/logger.js';
 
@@ -113,7 +114,12 @@ export function initURE(getSock: () => WASocket | null): void {
           const cfg = getData('config') || { tagAll: {} };
           const useTagAll = (typeof r.useTagAll === 'boolean') ? r.useTagAll : Boolean(cfg.tagAll?.universalRemindersDefault);
           const text = renderText(r);
-          if (jid.endsWith('@g.us') && useTagAll) {
+          
+          // NEW: Check if broadcast to all groups is enabled
+          if (r.broadcastToAllGroups) {
+            logger.info({ id: r.id }, 'ure.fire.broadcast_to_all_groups');
+            await broadcastToAllGroups(s, text);
+          } else if (jid.endsWith('@g.us') && useTagAll) {
             await sendSystemTagAll(() => s, jid, text);
           } else {
             await s.sendMessage(jid, { text });

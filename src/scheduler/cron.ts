@@ -19,9 +19,16 @@ interface CronParams {
 }
 
 function getAllBroadcastGroups(): string[] {
-  const wl = getData('whitelist') || { groupAllowed: [] };
+  // HANYA dari env GROUP_IDS dan backward compatibility GROUP_JID
+  const groupIds = (process.env.GROUP_IDS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+  
+  // Backward compatibility: old GROUP_JID
   const envG = process.env.GROUP_JID ? [process.env.GROUP_JID] : [];
-  const src = [...(wl.groupAllowed || []), ...envG];
+    
+  const src = [...groupIds, ...envG];
   return Array.from(new Set(src.filter((s: string) => typeof s === 'string' && s.endsWith('@g.us'))));
 }
 
@@ -77,6 +84,67 @@ export async function initCron({ getSock, ai }: CronParams): Promise<void> {
   cron.schedule('0 19 * * *', async () => {
     const s = getSock(); if (!s) return;
     await requestDailyMaterials(s);
+  }, { 
+    timezone: 'Asia/Jakarta' 
+  });
+
+  // Note Takers reminder (20:00 WIB)
+  cron.schedule('0 20 * * *', async () => {
+    try {
+      const noteTakers = process.env.NOTE_TAKERS?.split(',') || [];
+      
+      if (noteTakers.length === 0) {
+        logger.warn('No note takers configured for evening reminder');
+        return;
+      }
+      
+      const sock = getSock();
+      if (!sock) return;
+      
+      // Get today's schedule for course IDs
+      const today = getToday();
+      const dn = getDayName(today);
+      const map: any = { mon: 'senin', tue: 'selasa', wed: 'rabu', thu: 'kamis', fri: 'jumat', sat: 'sabtu', sun: 'minggu' };
+      const dayName = (dn ? map[String(dn).toLowerCase()] : 'senin');
+      const schedule = getData('schedule');
+      const dayClasses = ((schedule.days || {}) as any)[dayName] || [];
+      
+      // First message: Greeting and instructions
+      const firstMessage = `📚 *NOTE TAKERS REMINDER* 📚\n\n` +
+                          `Halo Note Taker! 👋\n\n` +
+                          `Sudah waktunya untuk menyimpan materi kuliah hari ini. Jika kamu punya link materi (Google Drive, PDF, foto, dll), silakan balas dengan format:\n\n` +
+                          `*<ID> <link> <caption/penjelasan>*\n\n` +
+                          `📝 *Contoh:*\n` +
+                          `*1 https://drive.google.com/file/xxx Materi IoT membahas konsep dasar sensor dan implementasi pada smart home*`;
+      
+      // Second message: Course IDs
+      let secondMessage = `📋 *DAFTAR ID MATA KULIAH HARI INI:*\n\n`;
+      if (dayClasses.length > 0) {
+        dayClasses.forEach((course: any, index: number) => {
+          secondMessage += `${index + 1}. ${course.course}\n`;
+        });
+      } else {
+        secondMessage += `*Tidak ada jadwal kuliah hari ini.*\n\nTapi kamu tetap bisa kirim materi dengan ID bebas ya! 😊`;
+      }
+      
+      // Send to all note takers
+      for (const noteTaker of noteTakers) {
+        try {
+          const jid = noteTaker.trim();
+          if (!jid) continue;
+          
+          await sendTextMessage(sock, jid, firstMessage);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+          await sendTextMessage(sock, jid, secondMessage);
+          
+          logger.info({ jid }, 'Note taker reminder sent');
+        } catch (err) {
+          logger.error({ err: err as any, jid: noteTaker }, 'Failed to send note taker reminder');
+        }
+      }
+    } catch (e) {
+      logger.error({ err: e as any }, 'Error in note takers reminder job');
+    }
   }, { 
     timezone: 'Asia/Jakarta' 
   });

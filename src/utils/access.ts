@@ -10,10 +10,15 @@ function parseList(envValue?: string): string[] {
 
 export function getAllowedGroupJids(): string[] {
   const groups = new Set<string>();
-  const fromEnv = parseList(process.env.ALLOWED_GROUPS);
-  fromEnv.forEach(j => groups.add(j));
+  
+  // HANYA dari GROUP_IDS (new multi-group format)
+  const groupIds = parseList(process.env.GROUP_IDS);
+  groupIds.forEach(j => groups.add(j));
+  
+  // Backward compatibility: old GROUP_JID
   const main = process.env.GROUP_JID;
   if (main) groups.add(main);
+  
   return Array.from(groups);
 }
 
@@ -32,9 +37,8 @@ export function isAllowedChat(jid: string): boolean {
   const normalizedJid = normalizeJid(jid);
   const isGroup = isGroupJid(normalizedJid);
   if (isGroup) {
-    const json = getData('whitelist');
-    const fromJson = (json?.groupAllowed || []) as string[];
-    return getAllowedGroupJids().includes(normalizedJid) || fromJson.includes(normalizedJid);
+    // HANYA dari env GROUP_IDS, tidak dari whitelist.json
+    return getAllowedGroupJids().includes(normalizedJid);
   }
   const json = getData('whitelist');
   const fromJsonDm = (json?.dmAllowed || []) as string[];

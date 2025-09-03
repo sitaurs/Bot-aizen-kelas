@@ -901,33 +901,58 @@ async function deleteCarryItemHandler(args: any) {
 }
 
 async function queryMaterialsHandler(args: any) {
-  const materials = getData('materials');
-  const results = [];
+  const materials = getData('materials') || { byDate: {}, byCourse: {} };
+  const results: any[] = [];
+  const query = String(args.query || '').toLowerCase();
+  
+  if (!query.trim()) {
+    return { materials: [], count: 0, query: args.query };
+  }
 
+  // Search in byDate first (comprehensive search)
   for (const [date, entries] of Object.entries(materials.byDate)) {
-    for (const entry of entries as MaterialEntry[]) {
-      if (args.course && entry.course.toLowerCase() !== args.course.toLowerCase()) {
+    if (!Array.isArray(entries)) continue;
+    
+    for (const entry of entries as any[]) {
+      // Filter by course if specified
+      if (args.course && entry.course && !entry.course.toLowerCase().includes(args.course.toLowerCase())) {
         continue;
       }
 
+      // Filter by date range if specified
       if (args.dateFrom && date < args.dateFrom) continue;
       if (args.dateTo && date > args.dateTo) continue;
 
-      const searchText = `${entry.course} ${entry.captions.join(' ')}`.toLowerCase();
-      if (searchText.includes(args.query.toLowerCase())) {
+      // Search in caption and course name
+      const searchText = `${entry.course || ''} ${entry.caption || ''}`.toLowerCase();
+      if (searchText.includes(query)) {
         results.push({
           id: entry.id,
           course: entry.course,
-          date: entry.dateISO,
-          captions: entry.captions,
-          files: entry.files
+          date: entry.date,
+          link: entry.link,
+          caption: entry.caption,
+          type: entry.type || 'link',
+          addedBy: entry.addedBy,
+          timestamp: entry.timestamp
         });
       }
     }
   }
 
-  const topK = args.topK || 5;
-  return { materials: results.slice(0, topK) }; // Wrap array in object
+  // Remove duplicates by ID and sort by timestamp (newest first)
+  const unique = results.filter((item, index, arr) => 
+    arr.findIndex(x => x.id === item.id) === index
+  ).sort((a, b) => new Date(b.timestamp || '').getTime() - new Date(a.timestamp || '').getTime());
+
+  const topK = Math.min(args.topK || 10, unique.length);
+  
+  return { 
+    materials: unique.slice(0, topK),
+    count: unique.length,
+    query: args.query,
+    course: args.course || "semua mata kuliah"
+  };
 }
 
 async function getLecturerContactHandler(args: any) {
