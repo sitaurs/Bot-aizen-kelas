@@ -16,7 +16,7 @@ function toDailyRRule(hour: number, minute: number): string {
 export const reminderToolDecls = [
   {
     name: 'createUniversalReminder',
-    description: 'Buat reminder fleksibel (once/rrule/interval/windowed_rrule)',
+    description: 'Buat reminder fleksibel (once/rrule/interval/windowed_rrule) dengan dukungan T-minus notification',
     parameters: {
       type: 'object',
       properties: {
@@ -34,7 +34,10 @@ export const reminderToolDecls = [
         time: { type: 'object', properties: { hour: { type: 'number' }, minute: { type: 'number' } } },
         onlyNextWeekSameDay: { type: 'boolean' },
         dueAtISO: { type: 'string' },
-        tags: { type: 'array', items: { type: 'string' } }
+        tags: { type: 'array', items: { type: 'string' } },
+        tMinusEnabled: { type: 'boolean', description: 'Enable T-minus notification' },
+        tMinusMinutes: { type: 'number', description: 'Minutes before main reminder to send T-minus notification (default: 15)' },
+        tMinusText: { type: 'string', description: 'Custom text for T-minus notification (optional)' }
       },
       required: ['text']
     }
@@ -184,6 +187,15 @@ async function createReminder(payload: any & { _requesterJid?: string; _chatJid?
   if (Array.isArray(payload.tags)) r.meta = { ...(r.meta || {}), tags: payload.tags };
   if (typeof payload.useTagAll === 'boolean') (r as any).useTagAll = payload.useTagAll;
   if (typeof payload.broadcastToAllGroups === 'boolean') (r as any).broadcastToAllGroups = payload.broadcastToAllGroups;
+
+  // T-minus notification support
+  if (payload.tMinusEnabled) {
+    r.tMinus = {
+      enabled: true,
+      minutesBefore: payload.tMinusMinutes || 15,
+      text: payload.tMinusText
+    };
+  }
 
   list.push(r);
   await updateReminders(async () => ({ reminders: list }));

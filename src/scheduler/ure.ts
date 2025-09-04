@@ -30,6 +30,17 @@ function isDue(r: Reminder, now: dayjs.Dayjs): boolean {
   return now.isAfter(next) || now.isSame(next);
 }
 
+function isTMinusDue(r: Reminder, now: dayjs.Dayjs): boolean {
+  if (r.status !== 'active') return false;
+  if (!r.nextRunAt || !r.tMinus?.enabled) return false;
+  
+  const next = dayjs.tz(r.nextRunAt, 'Asia/Jakarta');
+  const tMinusTime = next.subtract(r.tMinus.minutesBefore, 'minute');
+  
+  // Check if we're in the T-minus window (within 1 minute of T-minus time)
+  return now.isSame(tMinusTime, 'minute') || (now.isAfter(tMinusTime) && now.isBefore(next));
+}
+
 function computeNext(r: Reminder, base: dayjs.Dayjs): string | null {
   const kind = r.schedule.kind;
   const end = r.schedule.end ? dayjs.tz(r.schedule.end, 'Asia/Jakarta') : null;
@@ -97,6 +108,51 @@ export function initURE(getSock: () => WASocket | null): void {
         }
       }
       for (const r of list.filter(x => x.status === 'active')) {
+        // Check for T-minus notifications first
+        if (r.tMinus?.enabled && isTMinusDue(r, now)) {
+          const lastTMinus = r.tMinus.lastTMinusFiredAt ? dayjs.tz(r.tMinus.lastTMinusFiredAt, 'Asia/Jakarta') : null;
+          const next = dayjs.tz(r.nextRunAt!, 'Asia/Jakarta');
+          const tMinusTime = next.subtract(r.tMinus.minutesBefore, 'minute');
+          
+          // Only send T-minus if we haven't sent it for this occurrence
+          if (!lastTMinus || lastTMinus.isBefore(tMinusTime)) {
+            const last = fireGuard.get(r.id + '_tminus') ?? 0;
+            if (now.valueOf() - last < 20_000) continue;
+            
+            try {
+              const s = getSock(); if (!s) continue;
+              const jid = (r as any).chatJid as unknown as string | undefined;
+              if (!jid || typeof jid !== 'string') continue;
+              
+              const cfg = getData('config') || { tagAll: {} };
+              const useTagAll = (typeof r.useTagAll === 'boolean') ? r.useTagAll : Boolean(cfg.tagAll?.universalRemindersDefault);
+              
+              // Use custom T-minus text or generate default
+              const tMinusText = r.tMinus.text || `⏰ ${r.tMinus.minutesBefore} menit lagi!\n${r.text}`;
+              
+              // Send T-minus notification
+              if (r.broadcastToAllGroups) {
+                logger.info({ id: r.id }, 'ure.tminus.broadcast_to_all_groups');
+                await broadcastToAllGroups(s, tMinusText);
+              } else if (jid.endsWith('@g.us') && useTagAll) {
+                await sendSystemTagAll(() => s, jid, tMinusText);
+              } else {
+                await s.sendMessage(jid, { text: tMinusText });
+              }
+              
+              // Update T-minus fired timestamp
+              r.tMinus.lastTMinusFiredAt = now.toISOString();
+              fireGuard.set(r.id + '_tminus', now.valueOf());
+              dirty = true;
+              
+              logger.info({ id: r.id, minutesBefore: r.tMinus.minutesBefore }, 'ure.tminus.fired');
+            } catch (e) {
+              logger.error({ err: e as any, id: r.id }, 'ure.tminus.error');
+            }
+          }
+        }
+        
+        // Check for main reminder
         if (!isDue(r, now)) continue;
         const last = fireGuard.get(r.id) ?? 0;
         if (now.valueOf() - last < 20_000) continue;

@@ -31,6 +31,14 @@ export interface Reminder {
   };
   useTagAll?: boolean;
   broadcastToAllGroups?: boolean; // NEW: untuk broadcast ke semua grup
+  
+  // T-minus notification support
+  tMinus?: {
+    enabled: boolean;
+    minutesBefore: number; // e.g., 15 for 15 minutes before
+    text?: string; // optional custom text for T-minus notification
+    lastTMinusFiredAt?: string; // track when T-minus was last sent
+  };
 }
 
 

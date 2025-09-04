@@ -4,7 +4,7 @@ import path from 'path';
 import { Reminder } from './ure.types.js';
 import { fileLock } from '../utils/lock.js';
 
-const DATA_PATH = path.resolve('data/reminders.json');
+const DATA_PATH = path.resolve('data/ure-reminders.json');
 
 async function ensureDir(): Promise<void> {
   const dir = path.dirname(DATA_PATH);

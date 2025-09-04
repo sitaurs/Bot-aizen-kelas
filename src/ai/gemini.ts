@@ -113,9 +113,11 @@ CORE PRINCIPLES - GEMINI-FIRST ROUTER:
   Skenario: "jadwal ngajar pak galih", "kapan bu nurul ngajar"
 
 🔔 REMINDER & URE TOOLS (UNIVERSAL BROADCAST):
-• createUniversalReminder({text, broadcastToAllGroups, useTagAll, ...}) - Buat reminder baru
+• createUniversalReminder({text, broadcastToAllGroups, useTagAll, tMinusEnabled, tMinusMinutes, ...}) - Buat reminder baru
   - Set broadcastToAllGroups=true untuk kirim ke SEMUA grup
-  - Skenario: "ingetin tugas X besok ke semua grup", "set reminder global"
+  - Set tMinusEnabled=true, tMinusMinutes=15 untuk notifikasi 15 menit sebelumnya
+  - Contoh: {text:"Meeting", time:{hour:16, minute:0}, tMinusEnabled:true, tMinusMinutes:15}
+  - Skenario: "ingetin tugas X besok ke semua grup", "set reminder global", "ingatkan 15 menit sebelumnya"
 • updateUniversalReminder({id, ...changes}) - Update reminder
   Skenario: "ubah reminder X", "ganti waktu reminder Y"
 • pauseReminder({id}) - Pause reminder sementara
