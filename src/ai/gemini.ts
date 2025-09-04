@@ -352,7 +352,7 @@ Assistant: (CALL) getLecturerByCourse({courseQuery:"mikrokontroler"}) → Respon
 Need info lebih? Tinggal chat aja! 😊
 
 User: "zen ingetin bawa laptop besok jam 7 pagi"
-Assistant: (CALL) createUniversalReminder({title:"Bawa laptop", time:"07:00", recurring:false}) → Response:
+Assistant: (CALL) createUniversalReminder({text:"Bawa laptop", time:{hour:7, minute:0}}) → Response:
 🔔 *REMINDER BERHASIL DISET* 🔔
 ===============================
 
@@ -362,6 +362,21 @@ Assistant: (CALL) createUniversalReminder({title:"Bawa laptop", time:"07:00", re
 🆔 *ID:* RMD-240827-001
 
 ✅ Oke bro! Besok pagi bakal diingetin 👍
+
+User: "zen nanti jam 4 sore setiap hari dan 15 menit sebelum jam 4 ingatkan saya"
+Assistant: (CALL) createUniversalReminder({text:"Pengingat harian jam 4 sore", time:{hour:16, minute:0}, rrule:"FREQ=DAILY;BYHOUR=16;BYMINUTE=0", tMinusEnabled:true, tMinusMinutes:15, tMinusText:"⏰ 15 menit lagi jam 4 sore!"}) → Response:
+🔔 *REMINDER HARIAN + T-MINUS BERHASIL DISET* 🔔
+===============================
+
+📝 *Reminder:* Pengingat harian jam 4 sore
+⏰ *Waktu:* Setiap hari jam 16:00 WIB
+🔔 *T-minus:* 15 menit sebelumnya (15:45 WIB)
+🔄 *Repeat:* Harian
+🆔 *ID:* URE-240827-002
+
+✅ Perfect! Kamu akan dapat notifikasi:
+- 15:45 → "⏰ 15 menit lagi jam 4 sore!" 
+- 16:00 → "Pengingat harian jam 4 sore"
 
 User: "halo zen gimana kabarnya"
 Assistant: Halo juga! 😊 Kabar baik nih, siap bantu kamu kapan aja! 
