@@ -294,37 +294,6 @@ export const tools = [
     }
   },
   {
-    name: 'setReminder',
-    description: 'Mengatur pengingat tugas atau acara',
-    parameters: {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          enum: ['task', 'exam', 'cash', 'item'],
-          description: 'Jenis pengingat'
-        },
-        title: {
-          type: 'string',
-          description: 'Judul pengingat'
-        },
-        course: {
-          type: 'string',
-          description: 'Mata kuliah (opsional)'
-        },
-        dueISO: {
-          type: 'string',
-          description: 'Tanggal dan waktu deadline dalam format ISO'
-        },
-        notes: {
-          type: 'string',
-          description: 'Catatan tambahan (opsional)'
-        }
-      },
-      required: ['type', 'title', 'dueISO']
-    }
-  },
-  {
     name: 'setExam',
     description: 'Mengatur jadwal ujian',
     parameters: {
@@ -562,25 +531,15 @@ export const tools = [
 
 // Build unified function declarations with deduplication
 export function buildFunctionDeclarations() {
-  const allTools = [...tools, ...reminderToolDecls];
-  
-  // Deduplicate by name
-  const uniqueTools = new Map();
-  for (const tool of allTools) {
-    if (uniqueTools.has(tool.name)) {
-      logger.warn(`[TOOLS] Duplicate tool name detected: ${tool.name} - keeping first declaration`);
-    } else {
-      uniqueTools.set(tool.name, tool);
-    }
-  }
-  
-  const finalTools = Array.from(uniqueTools.values());
+  // Use only the main tools array since reminderToolDecls is already included via spread
+  const allTools = tools;
   
   // Validate uniqueness
-  assertUniqueTools(finalTools);
+  assertUniqueTools(allTools);
   
-  logger.info(`[TOOLS] Built ${finalTools.length} unique function declarations`);
-  return finalTools;
+  logger.info(`[TOOLS] Built ${allTools.length} unique function declarations`);
+  logger.info(`[TOOLS] tools: ${JSON.stringify(allTools.map(t => t.name), null, 2)}`);
+  return allTools;
 }
 
 // Export the main tools array for backward compatibility
@@ -774,42 +733,6 @@ async function changeSchedulePermanentHandler(args: any) {
   });
 
   return { success: true, message: `✅ Jadwal ${args.course} berhasil diubah PERMANEN untuk hari ${args.dayName} menjadi ${args.start}-${args.end}` };
-}
-
-async function setReminderHandler(args: any) {
-  try {
-    logger.info('[REMINDER] Creating reminder with args');
-    logger.info(args);
-    
-    const reminder: Reminder = {
-      id: generateReminderId(),
-      type: args.type,
-      title: args.title,
-      course: args.course,
-      dueISO: args.dueISO,
-      notes: args.notes,
-      completed: false
-    };
-
-    logger.info('[REMINDER] Reminder object created');
-    logger.info(reminder);
-
-    await updateData('reminders', (reminders) => {
-      logger.info('[REMINDER] Current reminders before update');
-      logger.info(reminders);
-      reminders.push(reminder);
-      logger.info('[REMINDER] Reminders after push');
-      logger.info(reminders);
-      return reminders;
-    });
-
-    logger.info('[REMINDER] Reminder saved successfully');
-    return { success: true, id: reminder.id, message: 'Pengingat berhasil ditambahkan' };
-  } catch (error) {
-    logger.error('[REMINDER] Error in setReminderHandler');
-    logger.error(error);
-    throw error;
-  }
 }
 
 async function setExamHandler(args: any) {
