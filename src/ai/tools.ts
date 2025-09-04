@@ -777,22 +777,39 @@ async function changeSchedulePermanentHandler(args: any) {
 }
 
 async function setReminderHandler(args: any) {
-  const reminder: Reminder = {
-    id: generateReminderId(),
-    type: args.type,
-    title: args.title,
-    course: args.course,
-    dueISO: args.dueISO,
-    notes: args.notes,
-    completed: false
-  };
+  try {
+    logger.info('[REMINDER] Creating reminder with args');
+    logger.info(args);
+    
+    const reminder: Reminder = {
+      id: generateReminderId(),
+      type: args.type,
+      title: args.title,
+      course: args.course,
+      dueISO: args.dueISO,
+      notes: args.notes,
+      completed: false
+    };
 
-  await updateData('reminders', (reminders) => {
-    reminders.push(reminder);
-    return reminders;
-  });
+    logger.info('[REMINDER] Reminder object created');
+    logger.info(reminder);
 
-  return { success: true, id: reminder.id, message: 'Pengingat berhasil ditambahkan' };
+    await updateData('reminders', (reminders) => {
+      logger.info('[REMINDER] Current reminders before update');
+      logger.info(reminders);
+      reminders.push(reminder);
+      logger.info('[REMINDER] Reminders after push');
+      logger.info(reminders);
+      return reminders;
+    });
+
+    logger.info('[REMINDER] Reminder saved successfully');
+    return { success: true, id: reminder.id, message: 'Pengingat berhasil ditambahkan' };
+  } catch (error) {
+    logger.error('[REMINDER] Error in setReminderHandler');
+    logger.error(error);
+    throw error;
+  }
 }
 
 async function setExamHandler(args: any) {
